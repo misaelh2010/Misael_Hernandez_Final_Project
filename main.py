@@ -1,13 +1,14 @@
 import hashlib
 import datetime
 import time
-import flask
-from flask import jsonify
+import flask, werkzeug
+from flask import jsonify, make_response
 from flask import request, make_response
 from sql import create_connection
 from sql import execute_read_query
 from sql import execute_query
 from datetime import datetime
+from werkzeug.exceptions import HTTPException
 
 #setting up the application
 app = flask.Flask(__name__) #sets up the application
@@ -32,6 +33,36 @@ def auth_login():
             return '<h1> WElLCOME TO VACATION PLANNER </h1>'
     return make_response('COULD NOT VERIFY CREDENTIALS!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
 
+#for this endpoint i havent decided yet if it will be needed for sprint 2, so i will leave it like this for now 
+#and reevaluate during sprint2
+#this endpoint is going to get the trip by its destinationid
+#@app.route('/trip', methods=['GET'])
+#def get_trip():
+#    if 'destinationid' in request.args: #only if an id is provided as an argument, proceed
+#        destinationid = int(request.args['destinationid'])
+##    else:
+ #       return 'ERROR: No ID provided!'
+ #   
+ #   #connection to db
+ #   conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+ #   sql = "SELECT * FROM trip"
+ #   trip = execute_read_query(conn, sql)
+ #   results = []
+#
+ #  #append and return the results by destinationid and jsonify 
+ #   for tripname in trip:
+ #       if tripname['destinationid'] == destinationid:
+ #           results.append(tripname)
+ #   return results
+
+@app.route('/trip', methods=['GET'])
+def get_trip():
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    sql = "SELECT * FROM trip"
+    trip = execute_read_query(conn, sql)
+    return trip
+#the GET method for the trip  table is now working and wil return all entries in the body section of postman when the endpoint is sent
+
 
 @app.route('/trip', methods=['POST'])
 def add_trip():
@@ -41,8 +72,11 @@ def add_trip():
     newdestinationid = str(strid)
     newtripname = request_data['tripname']
     newtransportation = request_data['transportation']
+    #i used the reference below to get an idea on how to take a date input in the format yyyy-mm-dd and insert into the db table
+    #https://www.codegrepper.com/code-examples/python/how+to+convert+string+into+date+in+python
     #i had to change the datetime variable into a str so that it would get inserted into the table for both startdate and enddate
-    startdate = (request_data['startdate'])  
+    startdate = (request_data['startdate'])
+    #date format as yyyy-mm-dd(2022-03-04) or mm-dd-yyyy(03-04-2022)  
     newstartdate = str(datetime.strptime(startdate, '%m-%d-%Y').date())
     enddate = request_data['enddate']
     newenddate = str(datetime.strptime(enddate, '%m-%d-%Y').date())
