@@ -1,14 +1,14 @@
 import hashlib
 import datetime
 import time
-import flask, werkzeug
+import flask#, werkzeug
 from flask import jsonify, make_response
 from flask import request, make_response
 from sql import create_connection
 from sql import execute_read_query
 from sql import execute_query
 from datetime import datetime
-from werkzeug.exceptions import HTTPException
+#from werkzeug.exceptions import HTTPException
 
 #setting up the application
 app = flask.Flask(__name__) #sets up the application
@@ -148,5 +148,12 @@ def post_destination():
 
 #post method is now working for the destination table
 
+@app.route('/destination', methods=['GET'])
+def get_destination():
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    sql = "SELECT * FROM destination"
+    destination = execute_read_query(conn, sql)
+    return destination
+#the GET method for the destination table is now working and wil return all entries in the body section of postman when the endpoint is sent
 
 app.run()
