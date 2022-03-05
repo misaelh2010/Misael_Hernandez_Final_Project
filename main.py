@@ -7,6 +7,7 @@ from flask import request, make_response
 from sql import create_connection
 from sql import execute_read_query
 from sql import execute_query
+from datetime import datetime
 
 #setting up the application
 app = flask.Flask(__name__) #sets up the application
@@ -30,6 +31,28 @@ def auth_login():
         if request.authorization.username == masterUsername and hashedResult.hexdigest() == masterPassword:
             return '<h1> WElLCOME TO VACATION PLANNER </h1>'
     return make_response('COULD NOT VERIFY CREDENTIALS!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
+
+@app.route('/trip', methods=['POST'])
+def add_trip():
+    request_data = request.get_json()
+     #i had to modify the destinationid request so that it would take the info from the body section in postman and post it to the table
+    strid = request_data['destinationid']     
+    newdestinationid = str(strid)
+    newtripname = request_data['tripname']
+    newtransportation = request_data['transportation']
+    #i had to change the datetime variable into a str so that it would get inserted into the table for both startdate and enddate
+    startdate = (request_data['startdate'])  
+    newstartdate = str(datetime.strptime(startdate, '%m-%d-%Y').date())
+    enddate = request_data['enddate']
+    newenddate = str(datetime.strptime(enddate, '%m-%d-%Y').date())
+    
+    #connection to db and sql query to insert into table
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    sql = "INSERT INTO trip (destinationid, tripname, transportation, startdate, enddate) VALUES ('"+newdestinationid+"','"+newtripname+"','"+newtransportation+"','"+newstartdate+"','"+newenddate+"')"
+    execute_query(conn, sql)
+    return 'Trip added successfully'
+
 
 
 
