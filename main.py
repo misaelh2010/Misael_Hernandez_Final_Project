@@ -87,8 +87,35 @@ def add_trip():
     execute_query(conn, sql)
     return 'Trip added successfully'
 
+#this method is gong to update an entry in the trip table by destinationid
+@app.route('/trip', methods=['PUT'])
+def update_trip():
+    request_data = request.get_json()
+    #to pick and choose which animal to update we are going to reference which one with its id
+    strId = request_data['id']
+    requestedId = str(strId) 
+     #i had to modify the destinationid request so that it would take the info from the body section in postman and post it to the table
+    strid2 = request_data['destinationid']     
+    putdestinationid = str(strid2)
+    puttripname = request_data['tripname']
+    puttransportation = request_data['transportation']
+    #i used the reference below to get an idea on how to take a date input in the format yyyy-mm-dd and insert into the db table
+    #https://www.codegrepper.com/code-examples/python/how+to+convert+string+into+date+in+python
+    #i had to change the datetime variable into a str so that it would get inserted into the table for both startdate and enddate
+    startdate = (request_data['startdate'])
+    #date format as yyyy-mm-dd(2022-03-04) or mm-dd-yyyy(03-04-2022)  
+    putstartdate = str(datetime.strptime(startdate, '%m-%d-%Y').date())
+    enddate = request_data['enddate']
+    putenddate = str(datetime.strptime(enddate, '%m-%d-%Y').date())
 
-
-
+    
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    cursor = conn.cursor()
+    sql = "UPDATE trip SET destinationid = %s, tripname = %s, transportation = %s, startdate = %s, enddate = %s WHERE id = %s" 
+    val = (putdestinationid, puttripname, puttransportation, putstartdate, putenddate, requestedId)
+    cursor.execute(sql, val)
+    conn.commit()
+    return 'Trip updated successfully'
+    #method is now working with json data in the body section of postman
 
 app.run()
