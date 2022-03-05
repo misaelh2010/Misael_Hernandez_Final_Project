@@ -118,4 +118,18 @@ def update_trip():
     return 'Trip updated successfully'
     #method is now working with json data in the body section of postman
 
+#delete method for the trip table is now working with data from the body section in postman 
+@app.route('/trip', methods=['DELETE'])
+def delete_trip():
+    request_data = request.get_json()
+    strId = request_data['destinationid']
+    requestedId = str(strId)
+    
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    sql = "Delete from trip WHERE destinationid = ('"+requestedId+"')"
+    execute_query(conn, sql)
+    return 'Trip was deleted successfully'
+
+
+
 app.run()
