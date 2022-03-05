@@ -130,6 +130,23 @@ def delete_trip():
     execute_query(conn, sql)
     return 'Trip was deleted successfully'
 
+#this endpoint is going to post information for your trip into the destination table by id
+@app.route('/destination', methods=['POST']) #I got it to post to the zoo table
+def post_destination():
+    request_data = request.get_json() 
+    strid = (request_data['id'])  
+    tripid = str(strid)    
+    tripcountry = request_data['country']
+    tripcity = request_data['city']
+    tripsights = request_data['sightseeing']
+
+    #connection to the db
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    sql = "INSERT INTO destination (id, country, city, sightseeing) VALUES ('"+tripid+"','"+tripcountry+"','"+tripcity+"','"+tripsights+"')"
+    execute_query(conn, sql)
+    return 'Destination was added succesfully'
+
+#post method is now working for the destination table
 
 
 app.run()
