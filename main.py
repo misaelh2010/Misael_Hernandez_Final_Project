@@ -156,4 +156,25 @@ def get_destination():
     return destination
 #the GET method for the destination table is now working and wil return all entries in the body section of postman when the endpoint is sent
 
+@app.route('/destination', methods=['PUT'])
+def update_destination():
+    request_data = request.get_json()
+    #to pick and choose which destination to update we are going to reference which one with its id
+    #i had to modify the destinationid request so that it would take the info from the body section in postman and post it to the table
+    strId = request_data['id']
+    requestedId = str(strId) 
+    updatecountry = request_data['country']     
+    updatecity = request_data['city']
+    updatesightseeing = request_data['sightseeing']
+
+    #connection to database
+    conn = create_connection('cis3368.cygrl7flcnjt.us-east-2.rds.amazonaws.com', 'admin', 'Amaterasu24!', 'cis3368db')
+    cursor = conn.cursor()
+    sql = "UPDATE destination SET country = %s, city = %s, sightseeing = %s WHERE id = %s" 
+    val = (updatecountry, updatecity, updatesightseeing, requestedId)
+    cursor.execute(sql, val)
+    conn.commit()
+    return 'Destination updated successfully'
+    #put method is now working with json data in the body section of postman
+
 app.run()
